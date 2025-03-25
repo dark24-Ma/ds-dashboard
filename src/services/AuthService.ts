@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
-const API_LOCAL = 'http://localhost:3000'
+const API_LOCAL = 'https://ds-api-zeta.vercel.app' 
 const router = useRouter()
 
 class AuthService {
