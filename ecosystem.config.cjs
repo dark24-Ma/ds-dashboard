@@ -3,7 +3,7 @@ module.exports = {
       {
         name: "ds-consulting",
         script: "npm",
-        args: "run dev",
+        args: "run dev -- --host",
         env: {
           NODE_ENV: "development",
         },
