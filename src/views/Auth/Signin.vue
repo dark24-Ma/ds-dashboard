@@ -94,9 +94,10 @@
                           Garder ma session
                         </label>
                       </div>
-                      <router-link to="/reset-password"
-                        class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">Mot de passe
-                        oublié?</router-link>
+                      <button @click="showForgotPasswordModal = true" 
+                        class="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400">
+                        Mot de passe oublié?
+                      </button>
                     </div>
                     <!-- Button -->
                     <div>
@@ -154,6 +155,69 @@
         </div>
       </div>
     </div>
+
+    <!-- Ajouter le modal -->
+    <div v-if="showForgotPasswordModal" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-xl dark:bg-gray-800">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Réinitialisation du mot de passe
+          </h3>
+          <button @click="showForgotPasswordModal = false" 
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+          Entrez votre adresse email pour recevoir un lien de réinitialisation
+        </p>
+
+        <form @submit.prevent="handleForgotPassword">
+          <div class="mb-4">
+            <label for="resetEmail" 
+              class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-400">
+              Email
+            </label>
+            <input
+              v-model="resetEmail"
+              type="email"
+              id="resetEmail"
+              placeholder="votre@email.com"
+              class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              required
+            />
+          </div>
+
+          <div v-if="resetPasswordError" class="mb-4 text-sm text-red-500">
+            {{ resetPasswordError }}
+          </div>
+
+          <div v-if="resetPasswordSuccess" class="mb-4 text-sm text-green-500">
+            {{ resetPasswordSuccess }}
+          </div>
+
+          <div class="flex justify-end space-x-3">
+            <button
+              type="button"
+              @click="showForgotPasswordModal = false"
+              class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="px-4 py-2 text-sm text-white bg-brand-500 rounded-lg hover:bg-brand-600"
+            >
+              Envoyer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </FullScreenLayout>
 </template>
 
@@ -170,6 +234,12 @@ const showPassword = ref(false)
 const keepLoggedIn = ref(false)
 const errorMessage = ref('')
 const router = useRouter()
+
+// Nouvelles variables pour le modal
+const showForgotPasswordModal = ref(false)
+const resetEmail = ref('')
+const resetPasswordError = ref('')
+const resetPasswordSuccess = ref('')
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
@@ -191,4 +261,38 @@ const handleSubmit = async () => {
     }
   }
 }
+
+// Nouvelle fonction pour gérer la réinitialisation du mot de passe
+const handleForgotPassword = async () => {
+  try {
+    resetPasswordError.value = ''
+    resetPasswordSuccess.value = ''
+    
+    await AuthService.forgotPassword(resetEmail.value)
+    
+    resetPasswordSuccess.value = 'Un email de réinitialisation vous a été envoyé.'
+    setTimeout(() => {
+      showForgotPasswordModal.value = false
+      resetEmail.value = ''
+      resetPasswordSuccess.value = ''
+    }, 3000)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    resetPasswordError.value = error.response?.data?.message || 
+      'Une erreur est survenue. Veuillez réessayer.'
+  }
+}
 </script>
+
+<style scoped>
+/* Optionnel : Ajouter des styles pour l'animation du modal */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+</style>

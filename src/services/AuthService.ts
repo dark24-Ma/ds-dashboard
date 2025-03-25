@@ -2,6 +2,8 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 
 const API_LOCAL = 'https://ds-api-zeta.vercel.app' 
+// const API_LOCAL = 'http://localhost:3000' 
+
 const router = useRouter()
 
 class AuthService {
@@ -30,6 +32,21 @@ class AuthService {
   async logout() {
     localStorage.removeItem('user');
     router.push('/signin')
+  }
+
+  async forgotPassword(email: string) {
+    const response = await axios.post(`${API_LOCAL}/auth/request-reset-password`, {email: email})
+    if (response.data) {
+
+    }
+    return response;
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    console.log(token, newPassword)
+    const response = await axios.put(`${API_LOCAL}/auth/reset-password`, { resetToken: token, password: newPassword})
+    // if (res)
+    return response;
   }
 }
 

@@ -16,6 +16,22 @@ const router = createRouter({
       component: () => import('../views/Dashboard.vue')
     },
     {
+      path: '/reset-password',
+      name: 'Reset-Password',
+      component: () => import('../views/Auth/Resetpassword.vue'),
+      beforeEnter: (to, from, next) => {
+        const token = to.query.token;
+        if (!token) {
+          next({ name: 'Signin' });
+        } else {
+          next()
+        }
+      },
+      meta: {
+        title: 'Reset Password'
+      }
+    },
+    {
       path: '/calendar',
       name: 'Calendar',
       component: () => import('../views/Others/Calendar.vue'),
