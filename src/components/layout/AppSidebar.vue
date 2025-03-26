@@ -19,8 +19,8 @@
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]"
     >
-      <router-link to="/">
-        <img
+      <router-link to="/dashboard">
+        <!-- <img
           v-if="isExpanded || isHovered || isMobileOpen"
           class="dark:hidden"
           src="/images/logo/logo.svg"
@@ -42,7 +42,7 @@
           alt="Logo"
           width="32"
           height="32"
-        />
+        /> -->
       </router-link>
     </div>
     <div

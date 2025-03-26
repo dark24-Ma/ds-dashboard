@@ -8,7 +8,7 @@
         <img src="/images/user/owner.jpg" alt="User" />
       </span>
 
-      <span class="block mr-1 font-medium text-theme-sm">Musharof </span>
+      <span class="block mr-1 font-medium text-theme-sm">{{ currentUser?.firstname || 'User' }} </span>
 
       <ChevronDownIcon :class="{ 'rotate-180': dropdownOpen }" />
     </button>
@@ -20,10 +20,10 @@
     >
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-          Musharof Chowdhury
+          {{ currentUser?.firstname || 'NA' }} {{ currentUser?.name  || 'NA'}}
         </span>
         <span class="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-          randomuser@pimjo.com
+          {{ currentUser?.email || 'NA'}}
         </span>
       </div>
 
@@ -57,13 +57,16 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon } from '@/icons'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted } from 'vue'
+import UserService from '@/services/UserService'
+import type { User } from '@/types/User'
 
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
+const currentUser = ref<User | null>(null)
 
 const menuItems = [
   { href: '/profile', icon: UserCircleIcon, text: 'Edit profile' },
@@ -91,8 +94,14 @@ const handleClickOutside = (event) => {
   }
 }
 
+const loadUserInfo = () => {
+  currentUser.value = UserService.getCurrentUser()
+  console.log('current ', currentUser.value.firstname)
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  loadUserInfo()
 })
 
 onUnmounted(() => {

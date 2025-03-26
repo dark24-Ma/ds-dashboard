@@ -9,9 +9,9 @@ const router = useRouter()
 class AuthService {
   async login(email: string, password: string) {
     const response = await axios.post(`${API_LOCAL}/auth/login`, { email, password })
-    if (response.data) {
-      localStorage.setItem('token',JSON.stringify(response.data));
-      console.log(response)
+    if (response.data?.access_token) {
+      localStorage.setItem('token', JSON.stringify({ access_token: response.data.access_token }))
+
     }
     return response
   }
@@ -29,8 +29,17 @@ class AuthService {
     return response
   }
 
-  async logout() {
-    localStorage.removeItem('user');
+  getToken(): string | null {
+    const tokenData = localStorage.getItem('token')
+    if (tokenData) {
+      const { access_token } = JSON.parse(tokenData)
+      return access_token
+    }
+    return null
+  }
+
+  logout(): void {
+    localStorage.removeItem('token')
     router.push('/signin')
   }
 
