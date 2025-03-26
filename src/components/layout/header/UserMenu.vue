@@ -96,7 +96,7 @@ const handleClickOutside = (event) => {
 
 const loadUserInfo = () => {
   currentUser.value = UserService.getCurrentUser()
-  console.log('current ', currentUser.value.firstname)
+  console.log('current ', currentUser.value)
 }
 
 onMounted(() => {

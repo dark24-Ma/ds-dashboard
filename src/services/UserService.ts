@@ -5,6 +5,7 @@ interface JWTPayload {
   email: string;
   firstname: string;
   name: string;
+  userType: string;
   sub: string;
   iat: number;
   exp: number;
@@ -25,12 +26,13 @@ class UserService {
 
       // Décoder le token pour obtenir les informations utilisateur
       const decodedToken = jwtDecode<JWTPayload>(access_token)
-    //   console.log(decodedToken)
+      console.log(decodedToken)
       
       return {
         email: decodedToken.email,
         firstname: decodedToken.firstname,
-        name: decodedToken.name
+        name: decodedToken.name,
+        userType: decodedToken.userType
       }
     } catch (error) {
       console.error('Erreur lors de la récupération des informations utilisateur:', error)

@@ -12,17 +12,17 @@
             <h4
               class="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left"
             >
-              Musharof Chowdhury
+              {{ currentUser?.firstname }} {{ currentUser?.name }}
             </h4>
             <div
               class="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left"
             >
-              <p class="text-sm text-gray-500 dark:text-gray-400">Team Manager</p>
-              <div class="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Arizona, United States</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{  currentUser?.userType || 'NA'}}</p>
+              <!-- <div class="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div> -->
+              <!-- <p class="text-sm text-gray-500 dark:text-gray-400">Arizona, United States</p> -->
             </div>
           </div>
-          <div class="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
+          <!-- <div class="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
             <a
               href="https://www.facebook.com/PimjoHQ"
               target="_blank"
@@ -98,7 +98,7 @@
                 />
               </svg>
             </a>
-          </div>
+          </div> -->
         </div>
         <button @click="isProfileInfoModal = true" class="edit-button">
           <svg
@@ -311,15 +311,30 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import Modal from './Modal.vue'
+import UserService from '@/services/UserService'
+import type { User } from '@/types/User'
 
 const isProfileInfoModal = ref(false)
+const currentUser = ref<User | null>(null)
 
-const saveProfile = () => {
-  // Implement save profile logic here
-  console.log('Profile saved')
-  isProfileInfoModal.value = false
+onMounted(() => {
+  loadUserInfo()
+})
+
+const loadUserInfo = () => {
+  currentUser.value = UserService.getCurrentUser()
+}
+
+const saveProfile = async () => {
+  try {
+    // Implémenter la logique de sauvegarde ici
+    console.log('Profile saved')
+    isProfileInfoModal.value = false
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du profil:', error)
+  }
 }
 </script>
