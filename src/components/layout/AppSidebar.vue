@@ -206,7 +206,7 @@
           </div>
         </div>
       </nav>
-      <SidebarWidget v-if="isExpanded || isHovered || isMobileOpen" />
+      <!-- <SidebarWidget v-if="isExpanded || isHovered || isMobileOpen" /> -->
     </div>
   </aside>
 </template>
@@ -245,9 +245,15 @@ const menuGroups = [
       {
         icon: GridIcon,
         name: "Dashboard",
-        subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+        path: '/dashboard'
+        // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
       },
       {
+        icon: MailIcon,
+        name: "News Letter",
+        path: "/newsletter"
+      }
+      /* {
         icon: CalenderIcon,
         name: "Calendar",
         path: "/calendar",
@@ -277,10 +283,10 @@ const menuGroups = [
           { name: "Black Page", path: "/blank", pro: false },
           { name: "404 Page", path: "/error-404", pro: false },
         ],
-      },
+      }, */
     ],
   },
-  {
+  /* {
     title: "Others",
     items: [
       {
@@ -313,7 +319,7 @@ const menuGroups = [
       },
       // ... Add other menu items here
     ],
-  },
+  }, */
 ];
 
 const isActive = (path) => route.path === path;

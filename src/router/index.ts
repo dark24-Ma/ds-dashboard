@@ -32,6 +32,24 @@ const router = createRouter({
       }
     },
     {
+      path: '/newsletter',
+      name: 'Newsletter',
+      component: () => import('@/views/newsletter/SubscribersList.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Gestion Newsletter'
+      }
+    },
+    {
+      path: '/newsletter/send',
+      name: 'SendNewsletter',
+      component: () => import('@/views/newsletter/SendNewsletter.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Envoyer Newsletter'
+      }
+    },
+    {
       path: '/calendar',
       name: 'Calendar',
       component: () => import('../views/Others/Calendar.vue'),
