@@ -86,8 +86,9 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
-import NewsletterService from '@/services/NewsletterService';
+// import NewsletterService from '@/services/NewsletterService';
 import type { NewsletterTemplate } from '@/types/Newsletter';
+import NewsLetterService from '@/services/NewsLetterService';
 
 const router = useRouter();
 const route = useRoute();
@@ -107,8 +108,8 @@ onMounted(async () => {
     if (isEditing.value) {
         try {
             const templateId = route.params.id as string;
-            const data = await NewsletterService.getTemplateById(templateId);
-
+            // const data = await NewsletterService.getTemplateById(templateId);
+            const data = await NewsLetterService.getTemplateById(templateId)
             // Mise à jour des champs du formulaire
             Object.assign(template, data);
         } catch (err: any) {
