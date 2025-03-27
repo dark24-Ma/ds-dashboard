@@ -197,7 +197,7 @@
   const deleting = ref(false);
   
   // Ajoutez une constante pour l'URL de base de l'API
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://185.97.146.99:2403';
   
   onMounted(async () => {
     try {

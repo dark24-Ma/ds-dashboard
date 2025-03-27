@@ -3,7 +3,7 @@ import axios from 'axios'
 import type { Subscriber, NewsletterTemplate, SendNewsletterRequest } from '@/types/NewsLetter'
 import { useRouter } from 'vue-router'
 
-const API_URL = 'https://ds-api-zeta.vercel.app'
+const API_URL = 'http://185.97.146.99:2403'
 // const API_URL = 'http://localhost:3000'
 const router = useRouter()
 
