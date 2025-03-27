@@ -249,6 +249,11 @@ const menuGroups = [
         // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
       },
       {
+        icon: BoxCubeIcon,
+        name: "Cours",
+        path: '/courses'
+      },
+      {
         icon: MailIcon,
         name: "News Letter",
         // path: "/newsletter"

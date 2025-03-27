@@ -76,7 +76,42 @@ const router = createRouter({
         title: 'Modifier un template de newsletter'
       }
     },
-    
+    {
+      path: '/courses',
+      name: 'Courses',
+      component: () => import('@/views/courses/CourseList.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Gestion des cours'
+      }
+    },
+    {
+      path: '/courses/create',
+      name: 'CreateCourse',
+      component: () => import('../views/courses/CourseForm.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Créer un cours'
+      }
+    },
+    {
+      path: '/courses/edit/:id',
+      name: 'EditCourse',
+      component: () => import('../views/courses/CourseForm.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Modifier un cours'
+      }
+    },
+    {
+      path: '/courses/:id',
+      name: 'CourseDetail',
+      component: () => import('../views/courses/CourseDetail.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Détail du cours'
+      }
+    },
     {
       path: '/calendar',
       name: 'Calendar',
