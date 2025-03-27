@@ -111,7 +111,7 @@ class NewsletterService {
 
   async deleteTemplate(id: string): Promise<void> {
     try {
-      await axiosInstance.delete(`/newsletter/templates/${id}`)
+      await axiosInstance.delete(`/newsletter-templates/${id}`)
     } catch (error: any) {
       console.error('Erreur lors de la suppression du template:', error)
       throw new Error(error.response?.data?.message || 'Erreur lors de la suppression du template')
