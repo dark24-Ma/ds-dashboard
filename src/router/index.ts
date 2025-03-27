@@ -50,6 +50,34 @@ const router = createRouter({
       }
     },
     {
+      path: '/newsletter/templates',
+      name: 'NewsletterTemplates',
+      component: () => import('../views/newsletter/TemplatesList.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Templates de newsletter'
+      }
+    },
+    {
+      path: '/newsletter/templates/create',
+      name: 'CreateNewsletterTemplate',
+      component: () => import('../views/newsletter/TemplateForm.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Créer un template de newsletter'
+      }
+    },
+    {
+      path: '/newsletter/templates/edit/:id',
+      name: 'EditNewsletterTemplate',
+      component: () => import('../views/newsletter/TemplateForm.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Modifier un template de newsletter'
+      }
+    },
+    
+    {
       path: '/calendar',
       name: 'Calendar',
       component: () => import('../views/Others/Calendar.vue'),

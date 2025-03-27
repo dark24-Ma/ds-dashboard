@@ -251,7 +251,17 @@ const menuGroups = [
       {
         icon: MailIcon,
         name: "News Letter",
-        path: "/newsletter"
+        // path: "/newsletter"
+        subItems: [
+          {
+            name: 'Abonnés',
+            path: "/newsletter",
+          },
+          {
+            name: 'Template',
+            path: '/newsletter/templates'
+          }
+        ]
       }
       /* {
         icon: CalenderIcon,

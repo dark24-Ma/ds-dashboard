@@ -7,8 +7,16 @@ export interface Subscriber {
   }
   
   export interface NewsletterTemplate {
-    id: number;
-    title: string;
+    name?: string;
+    subject: string;
     content: string;
-    created_at: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+    status?: 'draft' | 'published';
+  }
+
+  export interface SendNewsletterRequest {
+    templateId: string;
+    recipientIds?: string[]; // Si null, envoi à tous les abonnés
+    subject?: string; 
   }

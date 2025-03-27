@@ -110,11 +110,8 @@ class UserService {
     localStorage.removeItem('token')
   }
 
-  // Ajouter une méthode pour effacer le cache utilisateur (si vous en avez un)
+  //Todo
   clearUserCache(): void {
-    // Si vous utilisez un système de cache local ou une variable statique, nettoyez-le ici
-    // Par exemple, si vous stockez l'utilisateur dans une variable de classe:
-    // this._cachedUser = null
   }
 }
 
