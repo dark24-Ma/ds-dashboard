@@ -70,8 +70,8 @@ const currentUser = ref<User | null>(null)
 
 const menuItems = [
   { href: '/profile', icon: UserCircleIcon, text: 'Edit profile' },
-  { href: '/chat', icon: SettingsIcon, text: 'Account settings' },
-  { href: '/profile', icon: InfoCircleIcon, text: 'Support' },
+  // { href: '/chat', icon: SettingsIcon, text: 'Account settings' },
+  // { href: '/profile', icon: InfoCircleIcon, text: 'Support' },
 ]
 
 const toggleDropdown = () => {
