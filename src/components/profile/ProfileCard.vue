@@ -18,8 +18,8 @@
               class="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left"
             >
               <p class="text-sm text-gray-500 dark:text-gray-400">{{  currentUser?.userType || 'NA'}}</p>
-              <!-- <div class="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div> -->
-              <!-- <p class="text-sm text-gray-500 dark:text-gray-400">Arizona, United States</p> -->
+              <div v-if="currentUser?.email" class="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
+              <p v-if="currentUser?.email" class="text-sm text-gray-500 dark:text-gray-400">{{ currentUser.email }}</p>
             </div>
           </div>
           <!-- <div class="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
@@ -100,7 +100,7 @@
             </a>
           </div> -->
         </div>
-        <button @click="isProfileInfoModal = true" class="edit-button">
+        <button @click="openModal" class="edit-button">
           <svg
             class="fill-current"
             width="18"
@@ -120,14 +120,14 @@
         </button>
       </div>
     </div>
-    <Modal v-if="isProfileInfoModal" @close="isProfileInfoModal = false">
+    <Modal v-if="isProfileInfoModal" @close="closeModal">
       <template #body>
         <div
           class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
         >
           <!-- close btn -->
           <button
-            @click="isProfileInfoModal = false"
+            @click="closeModal"
             class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
           >
             <svg
@@ -148,76 +148,17 @@
           </button>
           <div class="px-2 pr-14">
             <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Personal Information
+              Modifier vos informations personnelles
             </h4>
             <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
+              Mettez à jour vos informations pour garder votre profil à jour.
             </p>
           </div>
-          <form class="flex flex-col">
+          <form @submit.prevent="saveProfile" class="flex flex-col">
             <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
-              <div>
-                <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <label
-                      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    >
-                      Facebook
-                    </label>
-                    <input
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                      class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    >
-                      X.com
-                    </label>
-                    <input
-                      type="text"
-                      value="https://x.com/PimjoHQ"
-                      class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    >
-                      Linkedin
-                    </label>
-                    <input
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo/posts/?feedView=all"
-                      class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                    >
-                      Instagram
-                    </label>
-                    <input
-                      type="text"
-                      value="https://instagram.com/PimjoHQ"
-                      class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                    />
-                  </div>
-                </div>
-              </div>
               <div class="mt-7">
                 <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
+                  Informations personnelles
                 </h5>
 
                 <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
@@ -225,11 +166,11 @@
                     <label
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      First Name
+                      Prénom
                     </label>
                     <input
                       type="text"
-                      value="Musharof"
+                      v-model="updatedUser.firstname"
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -238,11 +179,11 @@
                     <label
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Last Name
+                      Nom
                     </label>
                     <input
                       type="text"
-                      value="Chowdhury"
+                      v-model="updatedUser.name"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -251,11 +192,12 @@
                     <label
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Email Address
+                      Email
                     </label>
                     <input
                       type="text"
-                      value="randomuser@pimjo.com"
+                      :value="currentUser?.email"
+                      disabled
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -264,11 +206,11 @@
                     <label
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Phone
+                      Téléphone
                     </label>
                     <input
                       type="text"
-                      value="+09 363 398 46"
+                      v-model="updatedUser.phonenumber"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
@@ -277,31 +219,36 @@
                     <label
                       class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                     >
-                      Bio
+                      Type d'utilisateur
                     </label>
                     <input
                       type="text"
-                      value="Team Manager"
+                      :value="currentUser?.userType"
                       class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                      readonly
                     />
                   </div>
                 </div>
               </div>
             </div>
+            
+            <div v-if="error" class="mt-4 text-red-500 text-sm px-2">{{ error }}</div>
+            <div v-if="success" class="mt-4 text-green-500 text-sm px-2">{{ success }}</div>
+            
             <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <button
-                @click="isProfileInfoModal = false"
+                @click="closeModal"
                 type="button"
                 class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
               >
-                Close
+                Annuler
               </button>
               <button
-                @click="saveProfile"
-                type="button"
+                type="submit"
                 class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+                :disabled="loading"
               >
-                Save Changes
+                {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
               </button>
             </div>
           </form>
@@ -312,29 +259,80 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import Modal from './Modal.vue'
 import UserService from '@/services/UserService'
 import type { User } from '@/types/User'
 
 const isProfileInfoModal = ref(false)
 const currentUser = ref<User | null>(null)
+const updatedUser = reactive<Partial<User>>({})
+const loading = ref(false)
+const error = ref('')
+const success = ref('')
 
 onMounted(() => {
   loadUserInfo()
 })
 
 const loadUserInfo = () => {
-  currentUser.value = UserService.getCurrentUser()
+  const user = UserService.getCurrentUser()
+  currentUser.value = user
+  
+  // Réinitialiser les valeurs du formulaire avec les données actuelles
+  if (user) {
+    Object.assign(updatedUser, {
+      firstname: user.firstname,
+      name: user.name,
+      phonenumber: user.phonenumber
+    })
+  }
+}
+
+const openModal = () => {
+  // Réinitialiser le formulaire avec les dernières données
+  loadUserInfo()
+  isProfileInfoModal.value = true
+  error.value = ''
+  success.value = ''
+}
+
+const closeModal = () => {
+  isProfileInfoModal.value = false
+  error.value = ''
+  success.value = ''
 }
 
 const saveProfile = async () => {
   try {
-    // Implémenter la logique de sauvegarde ici
-    console.log('Profile saved')
-    isProfileInfoModal.value = false
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde du profil:', error)
+    loading.value = true
+    error.value = ''
+    
+    // Validation des champs
+    if (!updatedUser.firstname || !updatedUser.name) {
+      error.value = 'Le prénom et le nom sont obligatoires'
+      loading.value = false
+      return
+    }
+    
+    // Appel du service pour mettre à jour les informations
+    await UserService.updateUserProfile(updatedUser)
+    
+    // Recharger immédiatement les informations de l'utilisateur
+    loadUserInfo()
+    
+    success.value = 'Vos informations ont été mises à jour avec succès'
+    
+    // Fermer le modal après un délai
+    setTimeout(() => {
+      isProfileInfoModal.value = false
+      success.value = ''
+    }, 2000)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    error.value = err.message || 'Une erreur est survenue lors de la mise à jour de votre profil'
+  } finally {
+    loading.value = false
   }
 }
 </script>
