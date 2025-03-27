@@ -86,7 +86,7 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
-// import NewsletterService from '@/services/NewsletterService';
+// import NewsLetterService from '@/services/NewsletterService';
 import type { NewsletterTemplate } from '@/types/Newsletter';
 import NewsLetterService from '@/services/NewsLetterService';
 
@@ -124,9 +124,9 @@ const saveTemplate = async () => {
         error.value = '';
 
         if (isEditing.value) {
-            await NewsletterService.updateTemplate(route.params.id as string, template);
+            await NewsLetterService.updateTemplate(route.params.id as string, template);
         } else {
-            await NewsletterService.createTemplate(template);
+            await NewsLetterService.createTemplate(template);
         }
 
         router.push('/newsletter/templates');
