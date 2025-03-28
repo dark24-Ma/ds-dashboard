@@ -267,6 +267,20 @@ const menuGroups = [
             path: '/newsletter/templates'
           }
         ]
+      },
+      {
+        icon: UserCircleIcon,
+        name: "Abonnements",
+        subItems: [
+          {
+            name: 'Types d\'abonnement',
+            path: "/subscription-types",
+          },
+          {
+            name: 'Abonnés',
+            path: '/user-subscriptions'
+          }
+        ]
       }
       /* {
         icon: CalenderIcon,

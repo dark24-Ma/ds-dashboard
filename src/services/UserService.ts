@@ -106,6 +106,12 @@ class UserService {
     }
   }
 
+  async getUsers(): Promise<User[]> {
+    const response = await axiosInstance.get('/user')
+    console.log(response.data)
+    return response.data
+  }
+
   logout(): void {
     localStorage.removeItem('token')
   }

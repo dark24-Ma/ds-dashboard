@@ -113,6 +113,42 @@ const router = createRouter({
       }
     },
     {
+      path: '/subscription-types',
+      name: 'SubscriptionTypeList',
+      component: () => import('@/views/subscription/SubscriptionTypeList.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+    {
+      path: '/subscription-types/create',
+      name: 'CreateSubscriptionType',
+      component: () => import('@/views/subscription/SubscriptionTypeForm.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+    {
+      path: '/subscription-types/edit/:id',
+      name: 'EditSubscriptionType',
+      component: () => import('@/views/subscription/SubscriptionTypeForm.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+    {
+      path: '/user-subscriptions',
+      name: 'UserSubscriptionList',
+      component: () => import('@/views/subscription/UserSubscriptionList.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+    {
+      path: '/user-subscriptions/create',
+      name: 'CreateUserSubscription',
+      component: () => import('@/views/subscription/UserSubscriptionForm.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+    {
+      path: '/courses/:courseId/access',
+      name: 'CourseSubscriptionForm',
+      component: () => import('@/views/subscription/CourseSubscriptionForm.vue'),
+      meta: { requiresAuth: true, adminOnly: true }
+    },
+    {
       path: '/calendar',
       name: 'Calendar',
       component: () => import('../views/Others/Calendar.vue'),
