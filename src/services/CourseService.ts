@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosInstance from './api';
-import type { Course, CourseFilterOptions, CourseUploadResponse } from '@/types/Course';
+import type { Course, CourseFilterOptions, CourseUploadResponse, CourseResource } from '@/types/Course';
 
 class CourseService {
   async getCourses(filters?: CourseFilterOptions): Promise<Course[]> {
@@ -89,6 +89,41 @@ class CourseService {
     }
   }
 
+  // Méthodes pour gérer les ressources des cours
+  async addResourceToCourse(courseId: string, resourceData: FormData): Promise<Course> {
+    try {
+      const response = await axiosInstance.post(`/courses/${courseId}/resources`, resourceData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de l\'ajout de la ressource:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de l\'ajout de la ressource');
+    }
+  }
+
+  async removeResourceFromCourse(courseId: string, resourceId: string): Promise<Course> {
+    try {
+      const response = await axiosInstance.delete(`/courses/${courseId}/resources/${resourceId}`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la suppression de la ressource:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la suppression de la ressource');
+    }
+  }
+
+  async updateResourcesOrder(courseId: string, resources: { id: string, order: number }[]): Promise<Course> {
+    try {
+      const response = await axiosInstance.put(`/courses/${courseId}/resources/order`, { resources });
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la mise à jour de l\'ordre des ressources:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour de l\'ordre des ressources');
+    }
+  }
+
   // Méthode pour obtenir les tags disponibles
   async getAvailableTags(): Promise<string[]> {
     try {
@@ -113,9 +148,16 @@ class CourseService {
     }
   }
 
-  getViewUrl(id: string): string {
+  getViewUrl(id: string, resourceId?: string): string {
     // Retourne l'URL pour visualiser le cours (ne déclenche pas la requête)
-    return `${axiosInstance.defaults.baseURL}/courses/${id}/view`;
+    let url = `${axiosInstance.defaults.baseURL}/courses/${id}/view`;
+    
+    // Ajouter l'ID de la ressource si fourni
+    if (resourceId) {
+      url += `?resourceId=${resourceId}`;
+    }
+    
+    return url;
   }
 
   // Méthode pour obtenir tous les tags utilisés dans les cours

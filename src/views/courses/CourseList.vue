@@ -287,7 +287,7 @@
   
   const editCourse = (id: string | undefined) => {
     if (id) {
-      router.push(`/courses/edit/${id}`);
+      router.push(`/courses/${id}`);
     }
   };
   
