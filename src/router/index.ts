@@ -263,16 +263,25 @@ const router = createRouter({
       name: 'Signin',
       component: () => import('../views/Auth/Signin.vue'),
       meta: {
-        title: 'Signin',
-      },
+        title: 'Sign In'
+      }
     },
     {
       path: '/signup',
       name: 'Signup',
       component: () => import('../views/Auth/Signup.vue'),
       meta: {
-        title: 'Signup',
-      },
+        title: 'Sign Up'
+      }
+    },
+    {
+      path: '/free-courses',
+      name: 'FreeCourses',
+      component: () => import('../views/courses/FreeCoursesList.vue'),
+      meta: {
+        title: 'Cours en accès libre',
+        requiresAuth: false
+      }
     },
   ],
 })

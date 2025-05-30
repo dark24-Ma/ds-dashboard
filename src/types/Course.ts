@@ -8,6 +8,7 @@ export interface Course {
   resourceType: CourseResourceType;
   tags: string[];
   accessibleTo: UserRole[];
+  isFreeAccess?: boolean; // Indique si le cours est accessible sans abonnement
   duration: number; // en minutes
   fileUrl?: string;
   thumbnailUrl?: string;

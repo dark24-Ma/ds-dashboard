@@ -92,6 +92,26 @@
                 </div>
               </div>
   
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
+                  Accès libre
+                </label>
+                <div class="flex items-center">
+                  <input 
+                    id="free-access"
+                    type="checkbox"
+                    v-model="formData.isFreeAccess"
+                    class="h-4 w-4 text-brand-500 focus:ring-brand-500 border-gray-300 rounded"
+                  />
+                  <label for="free-access" class="ml-2 text-sm text-gray-700 dark:text-gray-400">
+                    Accessible sans abonnement
+                  </label>
+                </div>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Si activé, ce cours sera accessible à tous les utilisateurs, même sans abonnement.
+                </p>
+              </div>
+  
               <div class="lg:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">
                   Tags
@@ -183,7 +203,7 @@
   import { useRouter, useRoute } from 'vue-router';
   import AdminLayout from '@/components/layout/AdminLayout.vue';
   import CourseService from '@/services/CourseService';
-  import type { Course, ResourceType, UserRole } from '@/types/Course';
+  import type { Course, CourseResourceType, UserRole } from '@/types/Course';
   
   const router = useRouter();
   const route = useRoute();
@@ -191,7 +211,7 @@
   const fileInput = ref<HTMLInputElement | null>(null);
   const thumbnailInput = ref<HTMLInputElement | null>(null);
   const thumbnailPreview = ref<string | null>(null);
-  const course = ref<Course>({
+  const course = ref<Course & { fileName?: string }>({
     title: '',
     description: '',
     resourceType: 'pdf',
@@ -203,12 +223,13 @@
   const formData = reactive({
     title: '',
     description: '',
-    resourceType: 'pdf' as ResourceType,
+    resourceType: 'pdf' as CourseResourceType,
     tags: [] as string[],
     accessibleTo: ['client'] as UserRole[],
     duration: 60,
     file: null as File | null,
-    thumbnail: null as File | null
+    thumbnail: null as File | null,
+    isFreeAccess: false
   });
   
   const availableRoles = ['client', 'admin', 'instructor'] as UserRole[];
@@ -224,126 +245,128 @@
         const data = await CourseService.getCourseById(courseId);
         course.value = data;
       
-      // Initialiser le formulaire avec les données du cours
-      formData.title = data.title;
-      formData.description = data.description;
-      formData.resourceType = data.resourceType;
-      formData.tags = [...data.tags];
-      formData.accessibleTo = [...data.accessibleTo];
-      formData.duration = data.duration;
-    } catch (err: any) {
-      error.value = 'Erreur lors du chargement du cours: ' + err.message;
+        // Initialiser le formulaire avec les données du cours
+        formData.title = data.title;
+        formData.description = data.description;
+        formData.resourceType = data.resourceType;
+        formData.tags = [...data.tags];
+        formData.accessibleTo = [...data.accessibleTo];
+        formData.duration = data.duration;
+        formData.isFreeAccess = data.isFreeAccess || false;
+      } catch (err: any) {
+        error.value = 'Erreur lors du chargement du cours: ' + err.message;
+      }
     }
-  }
-});
+  });
 
-const handleFileChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    const file = input.files[0];
-    formData.file = file;
+  const handleFileChange = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      formData.file = file;
+      
+      // Vérifier que le type de fichier correspond au type de ressource sélectionné
+      if (formData.resourceType === 'pdf' && !file.type.includes('pdf')) {
+        error.value = 'Veuillez sélectionner un fichier PDF.';
+        formData.file = null;
+        if (fileInput.value) fileInput.value.value = '';
+      } else if (formData.resourceType === 'video' && !file.type.includes('video')) {
+        error.value = 'Veuillez sélectionner un fichier vidéo.';
+        formData.file = null;
+        if (fileInput.value) fileInput.value.value = '';
+      } else {
+        error.value = '';
+      }
+    }
+  };
+
+  const handleThumbnailChange = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      formData.thumbnail = file;
+      
+      // Créer un aperçu
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        thumbnailPreview.value = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const addNewTag = () => {
+    const tag = tagInput.value.trim();
+    if (tag && !formData.tags.includes(tag)) {
+      formData.tags.push(tag);
+      tagInput.value = '';
+    }
+  };
+
+  const removeTag = (tag: string) => {
+    formData.tags = formData.tags.filter(t => t !== tag);
+  };
+
+  const saveCourse = async () => {
+    // Vérifier la validité du formulaire
+    if (!formData.title || !formData.description || !formData.accessibleTo.length) {
+      error.value = 'Veuillez remplir tous les champs obligatoires.';
+      return;
+    }
     
-    // Vérifier que le type de fichier correspond au type de ressource sélectionné
-    if (formData.resourceType === 'pdf' && !file.type.includes('pdf')) {
-      error.value = 'Veuillez sélectionner un fichier PDF.';
-      formData.file = null;
-      if (fileInput.value) fileInput.value.value = '';
-    } else if (formData.resourceType === 'video' && !file.type.includes('video')) {
-      error.value = 'Veuillez sélectionner un fichier vidéo.';
-      formData.file = null;
-      if (fileInput.value) fileInput.value.value = '';
-    } else {
+    if (!isEditing.value && !formData.file) {
+      error.value = 'Veuillez sélectionner un fichier.';
+      return;
+    }
+    
+    if (!isEditing.value && !formData.thumbnail) {
+      error.value = 'Veuillez sélectionner une miniature.';
+      return;
+    }
+    
+    try {
+      saving.value = true;
       error.value = '';
+      
+      // Créer un objet FormData pour envoyer les fichiers
+      const data = new FormData();
+      data.append('title', formData.title);
+      data.append('description', formData.description);
+      data.append('resourceType', formData.resourceType);
+      data.append('duration', formData.duration.toString());
+      data.append('isFreeAccess', formData.isFreeAccess.toString());
+      
+      // Ajouter les tags et les rôles
+      formData.tags.forEach(tag => {
+        data.append('tags[]', tag);
+      });
+      
+      formData.accessibleTo.forEach(role => {
+        data.append('accessibleTo[]', role);
+      });
+      
+      // Ajouter les fichiers s'ils sont présents
+      if (formData.file) {
+        data.append('file', formData.file);
+      }
+      
+      if (formData.thumbnail) {
+        data.append('thumbnail', formData.thumbnail);
+      }
+      
+      if (isEditing.value) {
+        await CourseService.updateCourse(route.params.id as string, data);
+      } else {
+        await CourseService.createCourse(data);
+      }
+      
+      router.push('/courses');
+    } catch (err: any) {
+      error.value = 'Erreur lors de l\'enregistrement du cours: ' + err.message;
+    } finally {
+      saving.value = false;
     }
-  }
-};
-
-const handleThumbnailChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
-    const file = input.files[0];
-    formData.thumbnail = file;
-    
-    // Créer un aperçu
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      thumbnailPreview.value = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
-const addNewTag = () => {
-  const tag = tagInput.value.trim();
-  if (tag && !formData.tags.includes(tag)) {
-    formData.tags.push(tag);
-    tagInput.value = '';
-  }
-};
-
-const removeTag = (tag: string) => {
-  formData.tags = formData.tags.filter(t => t !== tag);
-};
-
-const saveCourse = async () => {
-  // Vérifier la validité du formulaire
-  if (!formData.title || !formData.description || !formData.accessibleTo.length) {
-    error.value = 'Veuillez remplir tous les champs obligatoires.';
-    return;
-  }
-  
-  if (!isEditing.value && !formData.file) {
-    error.value = 'Veuillez sélectionner un fichier.';
-    return;
-  }
-  
-  if (!isEditing.value && !formData.thumbnail) {
-    error.value = 'Veuillez sélectionner une miniature.';
-    return;
-  }
-  
-  try {
-    saving.value = true;
-    error.value = '';
-    
-    // Créer un objet FormData pour envoyer les fichiers
-    const data = new FormData();
-    data.append('title', formData.title);
-    data.append('description', formData.description);
-    data.append('resourceType', formData.resourceType);
-    data.append('duration', formData.duration.toString());
-    
-    // Ajouter les tags et les rôles
-    formData.tags.forEach(tag => {
-      data.append('tags[]', tag);
-    });
-    
-    formData.accessibleTo.forEach(role => {
-      data.append('accessibleTo[]', role);
-    });
-    
-    // Ajouter les fichiers s'ils sont présents
-    if (formData.file) {
-      data.append('file', formData.file);
-    }
-    
-    if (formData.thumbnail) {
-      data.append('thumbnail', formData.thumbnail);
-    }
-    
-    if (isEditing.value) {
-      await CourseService.updateCourse(route.params.id as string, data);
-    } else {
-      await CourseService.createCourse(data);
-    }
-    
-    router.push('/courses');
-  } catch (err: any) {
-    error.value = 'Erreur lors de l\'enregistrement du cours: ' + err.message;
-  } finally {
-    saving.value = false;
-  }
-};
+  };
 </script>
 
 <style scoped>

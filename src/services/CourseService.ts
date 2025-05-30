@@ -14,6 +14,16 @@ class CourseService {
     }
   }
 
+  async getFreeCourses(): Promise<Course[]> {
+    try {
+      const response = await axiosInstance.get('/courses/free-access');
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la récupération des cours gratuits:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des cours gratuits');
+    }
+  }
+
   async getCourseById(id: string): Promise<Course> {
     try {
       const response = await axiosInstance.get(`/courses/${id}`);
@@ -87,6 +97,38 @@ class CourseService {
     } catch (error: any) {
       console.error('Erreur lors de la récupération des tags:', error);
       throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des tags');
+    }
+  }
+
+  async downloadCourse(id: string): Promise<Blob> {
+    try {
+      // Utiliser responseType: 'blob' pour récupérer le fichier
+      const response = await axiosInstance.get(`/courses/${id}/download`, {
+        responseType: 'blob',
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors du téléchargement du cours:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors du téléchargement du cours');
+    }
+  }
+
+  // Méthode pour obtenir tous les tags utilisés dans les cours
+  async getAllTags(): Promise<string[]> {
+    try {
+      const courses = await this.getCourses();
+      const tagsSet = new Set<string>();
+      
+      courses.forEach(course => {
+        course.tags.forEach(tag => {
+          tagsSet.add(tag);
+        });
+      });
+      
+      return Array.from(tagsSet);
+    } catch (error: any) {
+      console.error('Erreur lors de la récupération des tags:', error);
+      throw new Error('Erreur lors de la récupération des tags');
     }
   }
 }
