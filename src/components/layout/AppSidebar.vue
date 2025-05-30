@@ -50,7 +50,7 @@
     >
       <nav class="mb-6">
         <div class="flex flex-col gap-4">
-          <div v-for="(menuGroup, groupIndex) in menuGroups" :key="groupIndex">
+          <div v-for="(menuGroup, groupIndex) in filteredMenuGroups" :key="groupIndex">
             <h2
               :class="[
                 'mb-4 text-xs uppercase flex leading-[20px] text-gray-400',
@@ -212,7 +212,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 import {
@@ -233,30 +233,57 @@ import {
 import SidebarWidget from "./SidebarWidget.vue";
 import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
 import { useSidebar } from "@/composables/useSidebar";
+import UserService from "@/services/UserService";
+import UserSubscriptionService from "@/services/UserSubscriptionService";
 
 const route = useRoute();
 
 const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar();
 
-const menuGroups = [
+// État pour stocker les informations de l'utilisateur et son abonnement
+const currentUser = ref(null);
+const hasSubscription = ref(false);
+
+// Charger les informations de l'utilisateur et son abonnement au montage du composant
+onMounted(async () => {
+  currentUser.value = UserService.getCurrentUser();
+  if (currentUser.value) {
+    try {
+      hasSubscription.value = await UserSubscriptionService.hasActiveSubscription();
+    } catch (error) {
+      console.error("Erreur lors de la vérification de l'abonnement:", error);
+      hasSubscription.value = false;
+    }
+  }
+});
+
+const allMenuGroups = [
   {
     title: "Menu",
     items: [
       {
         icon: GridIcon,
         name: "Dashboard",
-        path: '/dashboard'
-        // subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+        path: '/dashboard',
+        requiresAdmin: false,
       },
       {
         icon: BoxCubeIcon,
         name: "Cours",
-        path: '/courses'
+        path: '/courses',
+        requiresAdmin: false,
+        requiresSubscription: true,
+      },
+      {
+        icon: BoxCubeIcon,
+        name: "Cours Gratuits",
+        path: '/free-courses',
+        requiresAdmin: false,
+        showOnlyForClient: true,
       },
       {
         icon: MailIcon,
         name: "News Letter",
-        // path: "/newsletter"
         subItems: [
           {
             name: 'Abonnés',
@@ -266,7 +293,8 @@ const menuGroups = [
             name: 'Template',
             path: '/newsletter/templates'
           }
-        ]
+        ],
+        requiresAdmin: true,
       },
       {
         icon: UserCircleIcon,
@@ -280,76 +308,44 @@ const menuGroups = [
             name: 'Abonnés',
             path: '/user-subscriptions'
           }
-        ]
+        ],
+        requiresAdmin: true,
       }
-      /* {
-        icon: CalenderIcon,
-        name: "Calendar",
-        path: "/calendar",
-      },
-      {
-        icon: UserCircleIcon,
-        name: "User Profile",
-        path: "/profile",
-      },
-
-      {
-        name: "Forms",
-        icon: ListIcon,
-        subItems: [
-          { name: "Form Elements", path: "/form-elements", pro: false },
-        ],
-      },
-      {
-        name: "Tables",
-        icon: TableIcon,
-        subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-      },
-      {
-        name: "Pages",
-        icon: PageIcon,
-        subItems: [
-          { name: "Black Page", path: "/blank", pro: false },
-          { name: "404 Page", path: "/error-404", pro: false },
-        ],
-      }, */
     ],
   },
-  /* {
-    title: "Others",
-    items: [
-      {
-        icon: PieChartIcon,
-        name: "Charts",
-        subItems: [
-          { name: "Line Chart", path: "/line-chart", pro: false },
-          { name: "Bar Chart", path: "/bar-chart", pro: false },
-        ],
-      },
-      {
-        icon: BoxCubeIcon,
-        name: "Ui Elements",
-        subItems: [
-          { name: "Alerts", path: "/alerts", pro: false },
-          { name: "Avatars", path: "/avatars", pro: false },
-          { name: "Badge", path: "/badge", pro: false },
-          { name: "Buttons", path: "/buttons", pro: false },
-          { name: "Images", path: "/images", pro: false },
-          { name: "Videos", path: "/videos", pro: false },
-        ],
-      },
-      {
-        icon: PlugInIcon,
-        name: "Authentication",
-        subItems: [
-          { name: "Signin", path: "/signin", pro: false },
-          { name: "Signup", path: "/signup", pro: false },
-        ],
-      },
-      // ... Add other menu items here
-    ],
-  }, */
 ];
+
+// Filtrer les menus en fonction du type d'utilisateur et de l'état de l'abonnement
+const filteredMenuGroups = computed(() => {
+  // Si l'utilisateur n'est pas connecté, ne rien afficher
+  if (!currentUser.value) return [];
+  
+  // Si l'utilisateur est admin, afficher tous les menus sauf ceux spécifiques aux clients
+  if (currentUser.value.userType === 'admin') {
+    return allMenuGroups.map(group => ({
+      ...group,
+      items: group.items.filter(item => !item.showOnlyForClient)
+    })).filter(group => group.items.length > 0);
+  }
+  
+  // Pour les clients, n'afficher que les menus autorisés
+  return allMenuGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => {
+      // Ne montrer que les éléments qui ne requièrent pas d'être admin
+      if (item.requiresAdmin) return false;
+      
+      // Ne pas afficher les éléments qui nécessitent un abonnement si l'utilisateur n'en a pas
+      if (item.requiresSubscription && !hasSubscription.value) return false;
+      
+      // Afficher les éléments spécifiques aux clients
+      if (item.showOnlyForClient) return true;
+      
+      // Tous les autres éléments sont visibles
+      return true;
+    })
+  })).filter(group => group.items.length > 0);
+});
 
 const isActive = (path) => route.path === path;
 
@@ -359,7 +355,7 @@ const toggleSubmenu = (groupIndex, itemIndex) => {
 };
 
 const isAnySubmenuRouteActive = computed(() => {
-  return menuGroups.some((group) =>
+  return allMenuGroups.some((group) =>
     group.items.some(
       (item) =>
         item.subItems && item.subItems.some((subItem) => isActive(subItem.path))
@@ -372,21 +368,21 @@ const isSubmenuOpen = (groupIndex, itemIndex) => {
   return (
     openSubmenu.value === key ||
     (isAnySubmenuRouteActive.value &&
-      menuGroups[groupIndex].items[itemIndex].subItems?.some((subItem) =>
+      filteredMenuGroups.value[groupIndex]?.items[itemIndex]?.subItems?.some((subItem) =>
         isActive(subItem.path)
       ))
   );
 };
 
-const startTransition = (el) => {
-  el.style.height = "auto";
-  const height = el.scrollHeight;
-  el.style.height = "0px";
-  el.offsetHeight; // force reflow
-  el.style.height = height + "px";
-};
+// Transitions
+function startTransition(element) {
+  const height = element.scrollHeight;
+  element.style.height = "0";
+  element.offsetHeight; // Force reflow
+  element.style.height = height + "px";
+}
 
-const endTransition = (el) => {
-  el.style.height = "";
-};
+function endTransition(element) {
+  element.style.height = "";
+}
 </script>

@@ -12,6 +12,7 @@ export interface Course {
   duration: number; // en minutes
   fileUrl?: string;
   thumbnailUrl?: string;
+  fileName?: string; // Nom du fichier original
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -20,6 +21,13 @@ export interface CourseUploadResponse {
   id: string;
   fileUrl: string;
   thumbnailUrl: string;
+}
+
+export interface CourseFilter {
+  search?: string;
+  resourceType?: CourseResourceType;
+  tags?: string[];
+  accessibleTo?: UserRole;
 }
 
 export interface CourseFilterOptions {

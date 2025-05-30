@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import UserService from '@/services/UserService'
+import UserSubscriptionService from '@/services/UserSubscriptionService'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,7 +15,10 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'Dashboard',
-      component: () => import('../views/Dashboard.vue')
+      component: () => import('../views/Dashboard.vue'),
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/reset-password',
@@ -37,6 +42,7 @@ const router = createRouter({
       component: () => import('@/views/newsletter/SubscribersList.vue'),
       meta: {
         requiresAuth: true,
+        adminOnly: true,
         title: 'Gestion Newsletter'
       }
     },
@@ -46,6 +52,7 @@ const router = createRouter({
       component: () => import('@/views/newsletter/SendNewsletter.vue'),
       meta: {
         requiresAuth: true,
+        adminOnly: true,
         title: 'Envoyer Newsletter'
       }
     },
@@ -55,6 +62,7 @@ const router = createRouter({
       component: () => import('../views/newsletter/TemplatesList.vue'),
       meta: {
         requiresAuth: true,
+        adminOnly: true,
         title: 'Templates de newsletter'
       }
     },
@@ -64,6 +72,7 @@ const router = createRouter({
       component: () => import('../views/newsletter/TemplateForm.vue'),
       meta: {
         requiresAuth: true,
+        adminOnly: true,
         title: 'Créer un template de newsletter'
       }
     },
@@ -73,6 +82,7 @@ const router = createRouter({
       component: () => import('../views/newsletter/TemplateForm.vue'),
       meta: {
         requiresAuth: true,
+        adminOnly: true,
         title: 'Modifier un template de newsletter'
       }
     },
@@ -91,6 +101,7 @@ const router = createRouter({
       component: () => import('../views/courses/CourseForm.vue'),
       meta: {
         requiresAuth: true,
+        adminOnly: true,
         title: 'Créer un cours'
       }
     },
@@ -100,6 +111,7 @@ const router = createRouter({
       component: () => import('../views/courses/CourseForm.vue'),
       meta: {
         requiresAuth: true,
+        adminOnly: true,
         title: 'Modifier un cours'
       }
     },
@@ -113,40 +125,73 @@ const router = createRouter({
       }
     },
     {
+      path: '/courses/:id/view',
+      name: 'CourseViewer',
+      component: () => import('../views/courses/CourseViewer.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Visualisation du cours'
+      }
+    },
+    {
       path: '/subscription-types',
       name: 'SubscriptionTypeList',
       component: () => import('@/views/subscription/SubscriptionTypeList.vue'),
-      meta: { requiresAuth: true, adminOnly: true }
+      meta: { 
+        requiresAuth: true, 
+        adminOnly: true,
+        title: 'Types d\'abonnement'
+      }
     },
     {
       path: '/subscription-types/create',
       name: 'CreateSubscriptionType',
       component: () => import('@/views/subscription/SubscriptionTypeForm.vue'),
-      meta: { requiresAuth: true, adminOnly: true }
+      meta: { 
+        requiresAuth: true, 
+        adminOnly: true,
+        title: 'Créer un type d\'abonnement'
+      }
     },
     {
       path: '/subscription-types/edit/:id',
       name: 'EditSubscriptionType',
       component: () => import('@/views/subscription/SubscriptionTypeForm.vue'),
-      meta: { requiresAuth: true, adminOnly: true }
+      meta: { 
+        requiresAuth: true, 
+        adminOnly: true,
+        title: 'Modifier un type d\'abonnement'
+      }
     },
     {
       path: '/user-subscriptions',
       name: 'UserSubscriptionList',
       component: () => import('@/views/subscription/UserSubscriptionList.vue'),
-      meta: { requiresAuth: true, adminOnly: true }
+      meta: { 
+        requiresAuth: true, 
+        adminOnly: true,
+        title: 'Liste des abonnements'
+      }
     },
     {
       path: '/user-subscriptions/create',
       name: 'CreateUserSubscription',
       component: () => import('@/views/subscription/UserSubscriptionForm.vue'),
-      meta: { requiresAuth: true, adminOnly: true }
+      meta: { 
+        requiresAuth: true, 
+        adminOnly: true,
+        title: 'Créer un abonnement'
+      }
     },
     {
       path: '/courses/:courseId/access',
       name: 'CourseSubscriptionForm',
       component: () => import('@/views/subscription/CourseSubscriptionForm.vue'),
-      meta: { requiresAuth: true, adminOnly: true }
+      meta: { 
+        requiresAuth: true, 
+        adminOnly: true,
+        title: 'Gestion d\'accès au cours'
+      }
     },
     {
       path: '/calendar',
@@ -214,7 +259,6 @@ const router = createRouter({
         title: 'Badge',
       },
     },
-
     {
       path: '/buttons',
       name: 'Buttons',
@@ -223,7 +267,6 @@ const router = createRouter({
         title: 'Buttons',
       },
     },
-
     {
       path: '/images',
       name: 'Images',
@@ -248,7 +291,6 @@ const router = createRouter({
         title: 'Blank',
       },
     },
-
     {
       path: '/error-404',
       name: '404 Error',
@@ -257,7 +299,6 @@ const router = createRouter({
         title: '404 Error',
       },
     },
-
     {
       path: '/signin',
       name: 'Signin',
@@ -280,7 +321,7 @@ const router = createRouter({
       component: () => import('../views/courses/FreeCoursesList.vue'),
       meta: {
         title: 'Cours en accès libre',
-        requiresAuth: false
+        requiresAuth: true
       }
     },
   ],
@@ -288,7 +329,32 @@ const router = createRouter({
 
 export default router
 
-router.beforeEach((to, from, next) => {
-  document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+router.beforeEach(async (to, from, next) => {
+  document.title = `Vue.js ${to.meta.title || 'Page'} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+  
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    const currentUser = UserService.getCurrentUser()
+    
+    if (!currentUser) {
+      next({ name: 'Signin' })
+      return
+    }
+    
+    if (to.matched.some(record => record.meta.adminOnly)) {
+      if (currentUser.userType !== 'admin') {
+        next({ name: 'Dashboard' })
+        return
+      }
+    }
+
+    if (to.path === '/courses' && currentUser.userType !== 'admin') {
+      const hasSubscription = await UserSubscriptionService.hasActiveSubscription()
+      if (!hasSubscription) {
+        next({ name: 'FreeCourses' })
+        return
+      }
+    }
+  }
+  
   next()
 })

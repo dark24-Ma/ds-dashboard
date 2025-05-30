@@ -51,7 +51,7 @@
                   placeholder="Sélectionner des tags..."
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   @focus="showTagDropdown = true"
-                  @blur="setTimeout(() => { showTagDropdown = false }, 200)"
+                  @blur="window.setTimeout(() => { showTagDropdown = false }, 200)"
                 />
                 <div v-if="showTagDropdown && availableTags.length > 0" 
                   class="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-300 dark:border-gray-600 max-h-60 overflow-y-auto">
@@ -116,11 +116,13 @@
                 <span class="text-sm text-gray-500 dark:text-gray-400">{{ course.duration }} min</span>
                 
                 <div class="flex space-x-2">
-                  <button @click="downloadCourse(course.id)" 
+                  <button @click="viewCourse(course.id)" 
                     class="text-brand-500 hover:text-brand-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   </button>
                   
@@ -176,7 +178,15 @@
   import AdminLayout from '@/components/layout/AdminLayout.vue';
   import Modal from '@/components/common/Modal.vue';
   import CourseService from '@/services/CourseService';
-  import type { Course, CourseFilter, ResourceType } from '@/types/Course';
+  import UserService from '@/services/UserService';
+  import type { Course, CourseFilter, CourseResourceType } from '@/types/Course';
+  
+  // Déclaration pour window.searchTimeout
+  declare global {
+    interface Window {
+      searchTimeout: number;
+    }
+  }
   
   const router = useRouter();
   const courses = ref<Course[]>([]);
@@ -199,6 +209,10 @@
   // Ajoutez une constante pour l'URL de base de l'API
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://185.97.146.99:2403';
   
+  // Informations sur l'utilisateur courant
+  const currentUser = ref(UserService.getCurrentUser());
+  const isAdmin = computed(() => currentUser.value && currentUser.value.userType === 'admin');
+  
   onMounted(async () => {
     try {
       await Promise.all([
@@ -215,6 +229,18 @@
   const loadCourses = async () => {
     try {
       courses.value = await CourseService.getCourses(filters);
+      
+      // Si l'utilisateur n'est pas admin, filtrer les cours pour n'afficher que ceux auxquels il a accès
+      if (!isAdmin.value) {
+        courses.value = courses.value.filter(course => {
+          // Vérifier si le cours est accessible au type d'utilisateur courant
+          if (currentUser.value && course.accessibleTo.includes(currentUser.value.userType as any)) {
+            return true;
+          }
+          // Sinon vérifier si le cours est en accès libre
+          return course.isFreeAccess;
+        });
+      }
     } catch (err: any) {
       console.error('Erreur lors du chargement des cours:', err.message);
     }
@@ -291,29 +317,9 @@
     }
   };
   
-  const downloadCourse = async (id: string | undefined) => {
+  const viewCourse = (id: string | undefined) => {
     if (!id) return;
-    
-    try {
-      const courseData = await CourseService.getCourseById(id);
-      const blob = await CourseService.downloadCourse(id);
-      
-      // Créer un URL pour le blob
-      const url = window.URL.createObjectURL(blob);
-      
-      // Créer un lien et déclencher le téléchargement
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = courseData.fileName || `cours-${id}.${courseData.resourceType}`;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Nettoyer
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err: any) {
-      alert('Erreur lors du téléchargement du cours: ' + err.message);
-    }
+    router.push(`/courses/${id}/view`);
   };
   
   // Fonction pour obtenir l'URL complète de l'image

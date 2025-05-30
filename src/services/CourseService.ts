@@ -113,6 +113,11 @@ class CourseService {
     }
   }
 
+  getViewUrl(id: string): string {
+    // Retourne l'URL pour visualiser le cours (ne déclenche pas la requête)
+    return `${axiosInstance.defaults.baseURL}/courses/${id}/view`;
+  }
+
   // Méthode pour obtenir tous les tags utilisés dans les cours
   async getAllTags(): Promise<string[]> {
     try {
