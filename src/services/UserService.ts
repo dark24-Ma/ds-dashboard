@@ -13,8 +13,8 @@ interface JWTPayload {
   exp: number
 }
 
-const API_URL = 'http://185.97.146.99:2403'
-// const API_URL = 'http://localhost:3000'
+// const API_URL = 'http://185.97.146.99:2403'
+const API_URL = 'http://localhost:2403'
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {

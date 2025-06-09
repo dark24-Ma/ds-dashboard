@@ -53,11 +53,31 @@ export default {
     return axiosInstance.post('/user-subscriptions/subscribe', subscription).then(response => response.data);
   },
 
-  cancelSubscription(subscriptionId: string): Promise<void> {
-    return axiosInstance.post(`/user-subscriptions/${subscriptionId}/cancel`);
+  cancelSubscription(subscriptionId: string): Promise<UserSubscription> {
+    return axiosInstance.put(`/user-subscriptions/cancel/${subscriptionId}`).then(response => response.data);
+  },
+
+  expireSubscription(subscriptionId: string): Promise<UserSubscription> {
+    return axiosInstance.put(`/user-subscriptions/expire/${subscriptionId}`).then(response => response.data);
+  },
+
+  checkAndUpdateExpiredSubscriptions(): Promise<{expiredCount: number, expiredSubscriptions: string[]}> {
+    return axiosInstance.post('/user-subscriptions/check-expired').then(response => response.data);
   },
 
   renewSubscription(subscription: SubscribeUserRequest): Promise<UserSubscription> {
     return axiosInstance.post('/user-subscriptions/renew', subscription).then(response => response.data);
+  },
+
+  extendSubscription(userId: string, additionalDays: number = 30): Promise<UserSubscription> {
+    return axiosInstance.post('/user-subscriptions/extend', { userId, additionalDays }).then(response => response.data);
+  },
+
+  upgradeSubscription(userId: string, newSubscriptionTypeId: string): Promise<UserSubscription> {
+    return axiosInstance.post('/user-subscriptions/upgrade', { userId, newSubscriptionTypeId }).then(response => response.data);
+  },
+
+  getSubscriptionSuggestions(userId: string, requestedTypeId: string): Promise<any> {
+    return axiosInstance.get(`/user-subscriptions/suggestions/${userId}/${requestedTypeId}`).then(response => response.data);
   }
 };

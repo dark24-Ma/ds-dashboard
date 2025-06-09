@@ -4,6 +4,7 @@ export interface SubscriptionType {
     description: string;
     price: number;
     duration: number;
+    level?: number;
     features?: string[];
   }
   

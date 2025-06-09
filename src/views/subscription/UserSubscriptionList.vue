@@ -1,13 +1,20 @@
 <template>
     <admin-layout>
         <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-semibold dark:text-white">Abonnements des utilisateurs</h1>
+                    <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-semibold dark:text-white">Abonnements des utilisateurs</h1>
+            <div class="flex space-x-3">
+                <button @click="checkExpiredSubscriptions" 
+                    :disabled="checkingExpired"
+                    class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50">
+                    {{ checkingExpired ? 'Vérification...' : 'Vérifier expirations' }}
+                </button>
                 <router-link to="/user-subscriptions/create"
                     class="px-4 py-2 bg-brand-500 text-white rounded-md hover:bg-brand-600">
                     Attribuer un abonnement
                 </router-link>
             </div>
+        </div>
 
             <!-- Affichage des erreurs -->
             <div v-if="error" class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
@@ -91,22 +98,26 @@
                                 {{ formatDate(subscription.endDate) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="getStatusClass(subscription.isActive)"
+                                <span :class="getStatusClass(getSubscriptionStatus(subscription))"
                                     class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                                    {{ getStatusLabel(subscription.isActive) }}
+                                    {{ getStatusLabel(getSubscriptionStatus(subscription)) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
-                                    <button v-if="subscription.status === 'expired'"
+                                    <button v-if="getSubscriptionStatus(subscription) === 'expired' && subscription.subscriptionType?.id"
                                         @click="renewSubscription(subscription.id, subscription.userId, subscription.subscriptionType.id)"
                                         class="text-brand-500 hover:text-brand-700 dark:hover:text-brand-400">
                                         Renouveler
                                     </button>
-                                    <button v-else @click="cancelSubscription(subscription.id)"
+                                    <button v-else-if="getSubscriptionStatus(subscription) === 'active'"
+                                        @click="confirmCancelAction(subscription.id)"
                                         class="text-red-500 hover:text-red-700 dark:hover:text-red-400">
                                         Annuler
                                     </button>
+                                    <span v-else class="text-gray-400 text-sm">
+                                        Annulé
+                                    </span>
                                 </div>
                             </td>
                         </tr>
@@ -157,6 +168,7 @@ const subscriptionTypes = ref<SubscriptionType[]>([]);
 const error = ref('');
 const showCancelModal = ref(false);
 const subscriptionToCancel = ref<string | null>(null);
+const checkingExpired = ref(false);
 
 const filters = reactive({
     userSearch: '',
@@ -213,6 +225,21 @@ const formatDate = (dateString: string) => {
     }).format(date);
 };
 
+const getSubscriptionStatus = (subscription: UserSubscription) => {
+    if (!subscription.isActive) {
+        return 'cancelled';
+    }
+    
+    const now = new Date();
+    const endDate = new Date(subscription.endDate);
+    
+    if (endDate < now) {
+        return 'expired';
+    }
+    
+    return 'active';
+};
+
 const getStatusLabel = (status: string) => {
     switch (status) {
         case 'active': return 'Actif';
@@ -231,7 +258,7 @@ const getStatusClass = (status: string) => {
     }
 };
 
-const cancelSubscription = (subscriptionId: string) => {
+const confirmCancelAction = (subscriptionId: string) => {
     subscriptionToCancel.value = subscriptionId;
     showCancelModal.value = true;
 };
@@ -257,6 +284,23 @@ const renewSubscription = async (subscriptionId: string, userId: string, subscri
         await fetchData();
     } catch (err: any) {
         error.value = 'Erreur lors du renouvellement de l\'abonnement: ' + err.message;
+    }
+};
+
+const checkExpiredSubscriptions = async () => {
+    checkingExpired.value = true;
+    try {
+        const result = await SubscriptionService.checkAndUpdateExpiredSubscriptions();
+        if (result.expiredCount > 0) {
+            await fetchData(); // Recharger les données pour voir les changements
+            alert(`${result.expiredCount} abonnement(s) expiré(s) mis à jour`);
+        } else {
+            alert('Aucun abonnement expiré trouvé');
+        }
+    } catch (err: any) {
+        error.value = 'Erreur lors de la vérification des abonnements expirés: ' + err.message;
+    } finally {
+        checkingExpired.value = false;
     }
 };
 </script>
