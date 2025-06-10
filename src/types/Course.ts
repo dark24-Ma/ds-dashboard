@@ -31,6 +31,10 @@ export interface Course {
   updatedAt?: Date;
   fileName?: string;
   resources: CourseResource[];
+  // Nouvelles propriétés pour le contrôle d'accès
+  accessType?: 'free' | 'premium' | 'unrestricted';
+  hasAccess?: boolean;
+  requiredSubscriptionTypes?: string[];
 }
 
 export interface CourseFilterOptions {

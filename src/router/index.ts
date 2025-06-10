@@ -324,6 +324,15 @@ const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/my-courses',
+      name: 'MyCourses',
+      component: () => import('../views/courses/MyCourses.vue'),
+      meta: {
+        title: 'Mes Cours',
+        requiresAuth: true
+      }
+    },
   ],
 })
 

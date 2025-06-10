@@ -14,6 +14,16 @@ class CourseService {
     }
   }
 
+  async getAccessibleCourses(): Promise<{ courses: Course[], userSubscription: any }> {
+    try {
+      const response = await axiosInstance.get('/courses/user/accessible');
+      return response.data;
+    } catch (error: any) {
+      console.error('Erreur lors de la récupération des cours accessibles:', error);
+      throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des cours accessibles');
+    }
+  }
+
   async getFreeCourses(): Promise<Course[]> {
     try {
       const response = await axiosInstance.get('/courses/free-access');
