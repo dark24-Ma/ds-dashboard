@@ -232,6 +232,7 @@ import {
 } from "../../icons";
 import SidebarWidget from "./SidebarWidget.vue";
 import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
+import BannerIcon from "@/icons/BannerIcon.vue";
 import { useSidebar } from "@/composables/useSidebar";
 import UserService from "@/services/UserService";
 import UserSubscriptionService from "@/services/UserSubscriptionService";
@@ -308,6 +309,12 @@ const allMenuGroups = [
             path: '/user-subscriptions'
           }
         ],
+        requiresAdmin: true,
+      },
+      {
+        icon: BannerIcon,
+        name: "Bannières Publicitaires",
+        path: '/banners',
         requiresAdmin: true,
       }
     ],

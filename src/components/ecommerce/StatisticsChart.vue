@@ -37,25 +37,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import VueApexCharts from 'vue3-apexcharts'
+import DashboardStatisticsService from '../../services/DashboardStatisticsService'
 
 const options = [
-  { value: 'optionOne', label: 'Monthly' },
-  { value: 'optionTwo', label: 'Quarterly' },
-  { value: 'optionThree', label: 'Annually' },
+  { value: 'optionOne', label: 'Mensuel' },
+  { value: 'optionTwo', label: 'Trimestriel' },
+  { value: 'optionThree', label: 'Annuel' },
 ]
 
 const selected = ref('optionOne')
-import VueApexCharts from 'vue3-apexcharts'
 
 const series = ref([
   {
-    name: 'Sales',
-    data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+    name: 'Ventes',
+    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
   {
-    name: 'Revenue',
-    data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+    name: 'Revenus',
+    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
 ])
 
@@ -115,17 +116,17 @@ const chartOptions = ref({
     type: 'category',
     categories: [
       'Jan',
-      'Feb',
+      'Fév',
       'Mar',
-      'Apr',
-      'May',
+      'Avr',
+      'Mai',
       'Jun',
       'Jul',
-      'Aug',
+      'Aoû',
       'Sep',
       'Oct',
       'Nov',
-      'Dec',
+      'Déc',
     ],
     axisBorder: {
       show: false,
@@ -144,6 +145,19 @@ const chartOptions = ref({
       },
     },
   },
+})
+
+const loadStatisticsData = async () => {
+  try {
+    const data = await DashboardStatisticsService.getStatisticsChartData();
+    series.value = data.series;
+  } catch (error) {
+    console.error('Erreur lors du chargement des données de statistiques:', error);
+  }
+}
+
+onMounted(() => {
+  loadStatisticsData();
 })
 </script>
 

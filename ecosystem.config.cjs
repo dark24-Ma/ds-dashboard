@@ -1,13 +1,11 @@
 module.exports = {
-    apps: [
-      {
+    apps: [{
         name: "ds-consulting",
         script: "npm",
         args: "run dev -- --host",
         env: {
-          NODE_ENV: "development",
+            NODE_ENV: "development",
+            PORT: 2404,
         },
-      },
-    ],
-  };
-  
+    }, ],
+};

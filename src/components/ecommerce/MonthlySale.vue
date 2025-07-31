@@ -35,20 +35,21 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import DropdownMenu from '../common/DropdownMenu.vue'
-const menuItems = [
-  { label: 'View More', onClick: () => console.log('View More clicked') },
-  { label: 'Delete', onClick: () => console.log('Delete clicked') },
-]
-
 import VueApexCharts from 'vue3-apexcharts'
+import DashboardStatisticsService from '../../services/DashboardStatisticsService'
+
+const menuItems = [
+  { label: 'Voir plus', onClick: () => console.log('View More clicked') },
+  { label: 'Supprimer', onClick: () => console.log('Delete clicked') },
+]
 
 const series = ref([
   {
-    name: 'Sales',
-    data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+    name: 'Souscriptions',
+    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
 ])
 
@@ -80,17 +81,17 @@ const chartOptions = ref({
   xaxis: {
     categories: [
       'Jan',
-      'Feb',
+      'Fév',
       'Mar',
-      'Apr',
-      'May',
+      'Avr',
+      'Mai',
       'Jun',
       'Jul',
-      'Aug',
+      'Aoû',
       'Sep',
       'Oct',
       'Nov',
-      'Dec',
+      'Déc',
     ],
     axisBorder: {
       show: false,
@@ -133,7 +134,16 @@ const chartOptions = ref({
   },
 })
 
+const loadMonthlySalesData = async () => {
+  try {
+    const data = await DashboardStatisticsService.getMonthlySalesData();
+    series.value = data.series;
+  } catch (error) {
+    console.error('Erreur lors du chargement des données de ventes mensuelles:', error);
+  }
+}
+
 onMounted(() => {
-  // Any additional setup can be done here if needed
+  loadMonthlySalesData();
 })
 </script>

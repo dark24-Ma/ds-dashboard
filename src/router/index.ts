@@ -333,6 +333,36 @@ const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/banners',
+      name: 'Banners',
+      component: () => import('../views/banners/BannerList.vue'),
+      meta: {
+        title: 'Gestion des Bannières',
+        requiresAuth: true,
+        adminOnly: true
+      }
+    },
+    {
+      path: '/banners/create',
+      name: 'CreateBanner',
+      component: () => import('../views/banners/BannerForm.vue'),
+      meta: {
+        title: 'Créer une Bannière',
+        requiresAuth: true,
+        adminOnly: true
+      }
+    },
+    {
+      path: '/banners/edit/:id',
+      name: 'EditBanner',
+      component: () => import('../views/banners/BannerForm.vue'),
+      meta: {
+        title: 'Modifier la Bannière',
+        requiresAuth: true,
+        adminOnly: true
+      }
+    },
   ],
 })
 

@@ -4,7 +4,7 @@
   >
     <div class="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Recent Orders</h3>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Souscriptions Récentes</h3>
       </div>
 
       <div class="flex items-center gap-3">
@@ -47,13 +47,13 @@
             />
           </svg>
 
-          Filter
+          Filtrer
         </button>
 
         <button
           class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
         >
-          See all
+          Voir tout
         </button>
       </div>
     </div>
@@ -63,60 +63,68 @@
         <thead>
           <tr class="border-t border-gray-100 dark:border-gray-800">
             <th class="py-3 text-left">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Products</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Client</p>
             </th>
             <th class="py-3 text-left">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Category</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Type d'abonnement</p>
             </th>
             <th class="py-3 text-left">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Price</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Montant</p>
             </th>
             <th class="py-3 text-left">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Statut</p>
+            </th>
+            <th class="py-3 text-left">
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Date</p>
             </th>
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="(product, index) in products"
+            v-for="(order, index) in recentOrders"
             :key="index"
             class="border-t border-gray-100 dark:border-gray-800"
           >
             <td class="py-3 whitespace-nowrap">
               <div class="flex items-center gap-3">
-                <div class="h-[50px] w-[50px] overflow-hidden rounded-md">
-                  <img :src="product.image" :alt="product.name" />
+                <div class="h-[40px] w-[40px] overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <span class="text-gray-600 dark:text-gray-400 font-medium">
+                    {{ order.customerName?.charAt(0)?.toUpperCase() || 'U' }}
+                  </span>
                 </div>
                 <div>
                   <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                    {{ product.name }}
+                    {{ order.customerName }}
                   </p>
-                  <span class="text-gray-500 text-theme-xs dark:text-gray-400"
-                    >{{ product.variants }} Variants</span
-                  >
+                  <span class="text-gray-500 text-theme-xs dark:text-gray-400">
+                    {{ order.email }}
+                  </span>
                 </div>
               </div>
             </td>
             <td class="py-3 whitespace-nowrap">
-              <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ product.category }}</p>
+              <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ order.subscriptionType }}</p>
             </td>
             <td class="py-3 whitespace-nowrap">
-              <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ product.price }}</p>
+              <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ order.amount }}€</p>
             </td>
             <td class="py-3 whitespace-nowrap">
               <span
                 :class="{
                   'rounded-full px-2 py-0.5 text-theme-xs font-medium': true,
                   'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500':
-                    product.status === 'Delivered',
-                  'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-orange-400':
-                    product.status === 'Pending',
+                    order.status === 'Actif',
                   'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500':
-                    product.status === 'Canceled',
+                    order.status === 'Inactif',
                 }"
               >
-                {{ product.status }}
+                {{ order.status }}
               </span>
+            </td>
+            <td class="py-3 whitespace-nowrap">
+              <p class="text-gray-500 text-theme-sm dark:text-gray-400">
+                {{ formatDate(order.date) }}
+              </p>
             </td>
           </tr>
         </tbody>
@@ -125,49 +133,30 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import DashboardStatisticsService, { type RecentOrder } from '../../services/DashboardStatisticsService'
 
-const products = ref([
-  {
-    name: 'Macbook pro 13"',
-    variants: 2,
-    image: '/images/product/product-01.jpg',
-    category: 'Laptop',
-    price: '$2399.00',
-    status: 'Delivered',
-  },
-  {
-    name: 'Apple Watch Ultra',
-    variants: 1,
-    image: '/images/product/product-02.jpg',
-    category: 'Watch',
-    price: '$879.00',
-    status: 'Pending',
-  },
-  {
-    name: 'iPhone 15 Pro Max',
-    variants: 2,
-    image: '/images/product/product-03.jpg',
-    category: 'SmartPhone',
-    price: '$1869.00',
-    status: 'Delivered',
-  },
-  {
-    name: 'iPad Pro 3rd Gen',
-    variants: 2,
-    image: '/images/product/product-04.jpg',
-    category: 'Electronics',
-    price: '$1699.00',
-    status: 'Canceled',
-  },
-  {
-    name: 'Airpods Pro 2nd Gen',
-    variants: 1,
-    image: '/images/product/product-05.jpg',
-    category: 'Accessories',
-    price: '$240.00',
-    status: 'Delivered',
-  },
-])
+const recentOrders = ref<RecentOrder[]>([])
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
+
+const loadRecentOrders = async () => {
+  try {
+    recentOrders.value = await DashboardStatisticsService.getRecentOrders()
+  } catch (error) {
+    console.error('Erreur lors du chargement des commandes récentes:', error)
+  }
+}
+
+onMounted(() => {
+  loadRecentOrders()
+})
 </script>
