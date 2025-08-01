@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router';
 
 // Utiliser l'URL de l'API depuis les variables d'environnement ou une valeur par défaut
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:2403';
+// console.log('API URL:', API_URL);
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -43,24 +44,24 @@ axiosInstance.interceptors.response.use(
     // Vérifier si l'erreur est liée à l'authentification (401 Unauthorized)
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
       // Vérifier si le message d'erreur indique un token expiré
-      const isExpired = error.response.data && 
+      const isExpired = error.response.data &&
         (error.response.data.message?.toLowerCase().includes('expired') ||
          error.response.data.message?.toLowerCase().includes('invalid token') ||
          error.response.data.message?.toLowerCase().includes('jwt'));
-         
+
       if (isExpired || error.response.status === 401) {
         console.log('Token expiré ou invalide, redirection vers la page de connexion');
-        
+
         // Supprimer le token invalide du stockage local
         localStorage.removeItem('auth_token');
-        
+
         // Rediriger vers la page de connexion
         if (router.currentRoute.value.path !== '/signin') {
           router.push('/signin');
         }
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
