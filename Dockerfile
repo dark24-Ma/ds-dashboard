@@ -1,24 +1,15 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
+
 RUN npm install
 
 COPY . .
-COPY .env .
-RUN npm run dev
 
-FROM node:20-alpine
+RUN npm run build-only
 
-# WORKDIR /app
+EXPOSE 5173
 
-# COPY package*.json ./
-# RUN npm install --only=production
-# COPY .env .
-
-
-# COPY --from=builder /app/dist ./dist
-
-EXPOSE 8087
-CMD ["node", "dist/main"]
+CMD ["npm", "run", "preview"]
