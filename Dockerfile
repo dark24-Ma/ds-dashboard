@@ -10,6 +10,6 @@ COPY . .
 
 RUN npm run build-only
 
-EXPOSE 5173
+EXPOSE 8087
 
 CMD ["npm", "run", "preview"]
