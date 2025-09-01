@@ -87,7 +87,7 @@ import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import AdminLayout from '@/components/layout/AdminLayout.vue';
 // import NewsLetterService from '@/services/NewsletterService';
-import type { NewsletterTemplate } from '@/types/Newsletter';
+import type { NewsletterTemplate } from '@/types/NewsLetter';
 import NewsLetterService from '@/services/NewsLetterService';
 
 const router = useRouter();

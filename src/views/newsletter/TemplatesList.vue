@@ -175,7 +175,7 @@ import Modal from '@/components/common/Modal.vue';
 import NewsLetterService from '@/services/NewsLetterService';
 import SubscriberService from '@/services/SubscriberService';
 // import type { NewsletterTemplate, Subscriber } from '@/types/Newsletter';
-import type { NewsletterTemplate, Subscriber } from '@/types/Newsletter';
+import type { NewsletterTemplate, Subscriber } from '@/types/NewsLetter';
 
 const router = useRouter();
 const templates = ref<NewsletterTemplate[]>([]);

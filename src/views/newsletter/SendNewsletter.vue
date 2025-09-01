@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import NewsletterService from '@/services/NewsletterService'
-import type { Subscriber } from '@/types/Newsletter'
+import type { Subscriber } from '@/types/NewsLetter'
 // import AdminLayout from '@/components/layout/AdminLayout.vue'
 
 
