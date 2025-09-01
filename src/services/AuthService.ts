@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 
-// const API_LOCAL = 'http://185.97.146.99:2403' 
-const API_LOCAL = 'http://localhost:2403' 
+// const API_LOCAL = 'http://185.97.146.99:2403'
+const API_LOCAL = import.meta.env.VITE_API_URL /* 'http://localhost:2403'  */
 
 const router = useRouter()
 
